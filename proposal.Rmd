@@ -1,0 +1,6 @@
+---
+title: "Proposal"
+author: "Yunyi Jiang | Xiao Ma | Waveley Qiu | Xuehan Yang | Congyang Xie"
+date: '2022-10-01'
+output: pdf_document
+---
