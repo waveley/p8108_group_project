@@ -1,20 +1,36 @@
 ---
-title: "Group Project Proposal"
-author: "Yunyi Jiang | Xiao Ma | Waveley Qiu | Xuehan Yang | Congyang Xie"
-date: '2022-10-01'
+title: "P8108: Group Project Proposal (Group 6)"
+author: "Yunyi Jiang, Xiao Ma, Waveley Qiu, Xuehan Yang, Congyang Xie"
+date: '2022-10-03'
 output: pdf_document
 ---
 
-1. Project Outline: topic, objective, planned methods
+## Part 1: Project Outline
 
 We are interested in either conducting a literature review or an alternative analysis on a bladder cancer study and its associated dataset (`bladder1` in the `survival` package). 
 
+*Literature Review*: We would evaluate the strengths and weaknesses of the trial conducted and assess whether the assumptions undergirding the methodology are valid. We would also find a similar study to see if the methods used in the study are supported by other papers, particularly within the context of bladder cancer research.
 
+*Alternative Analysis*: The original study utilized an actuarial approach to analyzing the dataset -- we are considering conducting an alternative analysis by applying the Kaplan-Meier method to the data. As the exact event times are known for each record, we perceive this to be a legitimate alternative approach to what was done in the published study.
 
-2. Timeline: align with proposed pres date and date of report delivery
+## Part 2: Timeline
 
-3. Roles of each team member
+Between October 10 and November 14: if there are things to discuss, team weekly check-ins (3:00 - 4:30 PM)
 
+November 7: Start drafting presentation
 
+November 14: 80% of presentation done
+
+November 21: In-class presentation
+
+December 5: Start drafting report
+
+December 12: 80% of report done
+
+December 19: Submit final report 
+
+## Part 3: Group Roles
+
+We will try to do most of the project together through real-time/in-person meetings. If there are any tasks that need to be completed outside of these meeting times, we will divide them between the group then. Waveley will act as team lead as needed.
 
 
