@@ -1,6 +1,20 @@
 ---
-title: "Proposal"
+title: "Group Project Proposal"
 author: "Yunyi Jiang | Xiao Ma | Waveley Qiu | Xuehan Yang | Congyang Xie"
 date: '2022-10-01'
 output: pdf_document
 ---
+
+1. Project Outline: topic, objective, planned methods
+
+We are interested in either conducting a literature review or an alternative analysis on a bladder cancer study and its associated dataset (`bladder1` in the `survival` package). 
+
+
+
+2. Timeline: align with proposed pres date and date of report delivery
+
+3. Roles of each team member
+
+
+
+
