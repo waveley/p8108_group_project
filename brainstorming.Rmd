@@ -1,0 +1,44 @@
+---
+title: "brainstorming"
+author: "Waveley Qiu"
+date: '2022-11-19'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(survival)
+```
+
+## Analysis Plan
+
+1. Reproduce + extend analysis in bladder trial study document (Xuehan, Waveley)
+- Percentage of patients who had any recurrences (F test/ANOVA)
+- Recurrence rate (F test/ANOVA)
+- Time to first recurrence (KM estimates + plot)
+- Review literature (previous study document)
+
+2. EDA (Xiao)
+- Summarize data (plots of tumor information, # patients assigned to each treatment, # of each status [censored, died, recurrence], etc.)
+- Examine whether number of tumors/size of tumors has something to do with number of recurrences
+- Examine whether number of tumors/size of tumors has something to do with treatment assignment -- randomized, so probably not
+
+3. Conduct new survival analysis (Yunyi, Congyang)
+- PH model taking in treatment and tumor number/size as covariates
+- Check assumptions!
+- Anything else?
+
+4. Create presentation (next week)
+- Presentation date: December 5
+- Report due: December 19
+
+
+
+
+
+
+
+
+
+
+
