@@ -1,0 +1,78 @@
+---
+title: "reproduce"
+author: "Xuehan Yang"
+date: "2022-11-24"
+output: html_document
+---
+
+```{r}
+library(survival)
+library(tidyverse)
+library(ggfortify)
+```
+
+
+# Overview of paper
+
+One hundred-twenty one patients from ten Veterans Administration hospitals were admitted to this study between November, 1971, and August, 1976. Patients were assigned at random to one of three treatment groups: placebo, 1 tablet per day; oral pyridoxine, one 25 mg. tablet per day; or thiotepa, 60 mg. in 60 ml. of water instilled in the bladder for two hours once a week for four weeks and then once a month. Treatments were to be compared for a period of two years. 
+
+# Reproduce Table 1
+
+```{r}
+data(cancer, package = "survival")
+head(bladder1) %>% knitr::kable()
+```
+
+* id:	Patient id
+* treatment:	Placebo, pyridoxine (vitamin B6), or thiotepa
+* recur:	Number of recurrences
+* start,stop:	The start and end time of each time interval
+* status:	End of interval code, 0=censored, 1=recurrence, 2=death from bladder disease, 3=death other/unknown cause
+
+```{r}
+# No. of patients
+bladder1 %>% select(id,treatment) %>% unique() %>% group_by(treatment) %>% summarise(n = n()) %>% knitr::kable()
+
+# Total months of follow-up (FIXME)
+bladder1 %>% mutate(patient_month = stop - start) %>% group_by(treatment) %>% summarise(p_month = sum(patient_month)) %>% knitr::kable()
+
+# No.without follow up (FIXME)
+bladder1 %>% filter(start == 0 & stop == 0) %>% group_by(treatment) %>% summarise(n = n()) %>% knitr::kable()
+
+# No.without recurrences
+bladder1 %>% filter(recur == 0) %>% group_by(treatment) %>% summarise(n = n()) %>% knitr::kable()
+
+# the rates of recurrence
+bladder1 %>% filter(status == 1) %>% group_by(treatment) %>% summarise(n = n()) %>% left_join(bladder1 %>% mutate(patient_month = stop - start) %>% group_by(treatment) %>% summarise(p_month = sum(patient_month)), by = 'treatment') %>% mutate(rate = n/p_month) %>% knitr::kable()
+
+# table 1
+table1 <- tibble(treatment = c("Placebo", "Pyridoxine", "Thiotepa"),
+                 evaluable_patients = c(48,32,38),
+                 num_without_recur = c(19,17,20),
+                 num_with_recur = c(29,15,18),
+                 total_recur = c(87,57,44),
+                 total_month_follow = c(1528,993,1183)
+                 ) %>% 
+  mutate(percent_recur = round(num_with_recur/evaluable_patients*100,1),
+         recur_rate = round(total_recur/total_month_follow*100,1))
+
+```
+
+# Test
+
+# KM for Time to first recurrence
+
+```{r}
+dat = bladder1 %>% filter(start == 0 & status %in% c(0,1))
+
+bladder_fit <- survfit(Surv(stop, status == 1) ~ treatment, data = dat)
+bladder_fit %>% autoplot() + xlab("Time") + ylab("Survival Function")
+```
+
+
+
+
+
+
+
+
