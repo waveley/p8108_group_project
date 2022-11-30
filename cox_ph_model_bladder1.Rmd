@@ -1,0 +1,94 @@
+---
+title: "Cox-ph model"
+author: "Congyang Xie"
+date: "`r Sys.Date()`"
+output:
+  pdf_document: default
+  html_document:
+    df_print: paged
+---
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(survival)
+library(survminer)
+```
+
+```{r}
+data(cancer, package="survival")
+```
+
+### data preparation
+```{r}
+# data preparation
+bladder1 <-
+  bladder1 %>% 
+  mutate(recurr = if_else(status == 1, 1, 0),
+         time = stop - start,
+         rtumor = as.numeric(na_if(rtumor, ".")),
+         rsize = as.numeric(na_if(rsize, "."))) %>% 
+  filter(start == 0)
+
+```
+
+```{r}
+#skimr::skim(bladder1) %>% knitr::kable()
+```
+
+### Fit cox-ph model
+```{r}
+# fit univariate coxph model
+bladder1.cox.1 <- coxph(Surv(time, recurr) ~ treatment, data = bladder1)
+summary(bladder1.cox.1)
+```
+```{r}
+# check assumption
+test.ph.1 <- cox.zph(bladder1.cox.1, transform = "km")
+print(test.ph.1)
+ggcoxzph(test.ph.1)
+```
+
+```{r}
+bladder1.cox.2 <- coxph(Surv(time, recurr) ~ treatment + number + size, data = bladder1)
+summary(bladder1.cox.2)
+```
+```{r fig.height=21, fig.width=12}
+test.ph.2 <- cox.zph(bladder1.cox.2)
+print(test.ph.2)
+ggcoxzph(test.ph.2)
+```
+
+```{r message=FALSE, warning=FALSE}
+# Testing influential observations
+ggcoxdiagnostics(
+  bladder1.cox.2,
+  type = "dfbeta"
+)
+```
+### Testing non linearity
+```{r fig.height=8, fig.width=8}
+# Testing non linearity
+ggcoxfunctional(Surv(time, recurr) ~  number + log(number) + sqrt(number), data = bladder1)
+ggcoxfunctional(Surv(time, recurr) ~  size + log(size) + sqrt(size), data = bladder1)
+```
+
+
+```{r}
+bladder1.cox.3 <- coxph(Surv(time, recurr) ~ treatment + number, data = bladder1)
+summary(bladder1.cox.3)
+```
+
+```{r fig.height=21, fig.width=12}
+test.ph.3 <- cox.zph(bladder1.cox.3)
+print(test.ph.3)
+ggcoxzph(test.ph.3)
+```
+
+```{r message=FALSE, warning=FALSE}
+# Testing influential observations
+ggcoxdiagnostics(
+  bladder1.cox.3,
+  type = "dfbeta"
+)
+```
+
