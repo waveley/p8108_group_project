@@ -59,16 +59,24 @@ library(ggfortify)
 ## Analysis Plan
 1. Reproduce analysis conducted in original study to see if results are reproducible
 2. Construct models that differ from original study to see if they can be more informative
+  - Non-parametric: KM
+  - Semi-parametric: Cox Proportional Hazards Model
+  - Parametric: Weibull and Exponential Models
 
 # Reproduce Analysis
 
 ## Study Design
 
-- It was a randomized clinical trial. 121 patients from ten Veterans Administration hospitals were admitted to this study between November, 1971, and August, 1976. All patients had superficial bladder tumors (Stage I) when they entered the trial. Patients were assigned at random to one of three treatment groups: placebo, 1 tablet per day; oral pyridoxine, one 25 mg. tablet per day; or thiotepa, 60 mg. in 60 ml. of water instilled in the bladder for two hours once a week for four weeks and then once a month.
+- 121 patients from ten VA hospitals were enrolled in this study between November, 1971, and August, 1976
+- All patients had superficial bladder tumors when they entered the trial
+- Patients were assigned at random to one of three treatment groups: 
+  - Placebo, 1 tablet per day
+  - Oral pyridoxine, one 25 mg. tablet per day
+  - Thiotepa, 60 mg. in 60 ml. of water instilled in the bladder for two hours once a week for four weeks and then once a month.
 
 ## Study Design
 
-- The goal of the study should be to determine the effect of treatment on the frequency of tumor recurrence.
+- The goal of the study was to determine the effect of treatment on the prevention of tumor recurrence
 
 - The endpoint can be seen as the recurrence of bladder cancer, which is defined by a visit at which one or more tumors have reappeared in the bladder after having been removed previously.
 
@@ -111,6 +119,9 @@ dat = bladder1 %>% filter(start == 0 & status %in% c(0,1))
 bladder_fit <- survfit(Surv(stop, status == 1) ~ treatment, data = dat)
 bladder_fit %>% autoplot() + xlab("Time") + ylab("Survival Function")
 ```
+
+## Test
+![](image.png)
 
 
 ## References
