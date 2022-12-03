@@ -64,15 +64,15 @@ library(ggfortify)
 
 ## Study Design
 
-It was a randomized clinical trial. 121 patients from ten Veterans Administration hospitals were admitted to this study between November, 1971, and August, 1976. All patients had superficial bladder tumors (Stage I) when they entered the trial. Patients were assigned at random to one of three treatment groups: placebo, 1 tablet per day; oral pyridoxine, one 25 mg. tablet per day; or thiotepa, 60 mg. in 60 ml. of water instilled in the bladder for two hours once a week for four weeks and then once a month.
+- It was a randomized clinical trial. 121 patients from ten Veterans Administration hospitals were admitted to this study between November, 1971, and August, 1976. All patients had superficial bladder tumors (Stage I) when they entered the trial. Patients were assigned at random to one of three treatment groups: placebo, 1 tablet per day; oral pyridoxine, one 25 mg. tablet per day; or thiotepa, 60 mg. in 60 ml. of water instilled in the bladder for two hours once a week for four weeks and then once a month.
 
 ## Study Design
 
-The goal of the study should be to determine the effect of treatment on the frequency of tumor recurrence.
+- The goal of the study should be to determine the effect of treatment on the frequency of tumor recurrence.
 
-The endpoint can be seen as the recurrence of bladder cancer, which is defined by a visit at which one or more tumors have reappeared in the bladder after having been removed previously.
+- The endpoint can be seen as the recurrence of bladder cancer, which is defined by a visit at which one or more tumors have reappeared in the bladder after having been removed previously.
 
-The average follow-up information available for study was about thirty-one months in all three treatment groups, but some patients have been followed up as long as five years. 
+- The average follow-up information available for study was about thirty-one months in all three treatment groups, but some patients have been followed up as long as five years. 
 
 ## Exploratory Data Analysis
 
