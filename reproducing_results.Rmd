@@ -1,0 +1,95 @@
+---
+title: "reproducing_results"
+author: "Waveley Qiu"
+date: '2022-11-23'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(survival)
+```
+
+```{r}
+bladder <- survival::bladder1
+bladder
+```
+
+## Comparison of Rates of Recurrence
+
+```{r}
+patient_summary <- bladder %>% 
+  group_by(id, treatment) %>% 
+  mutate(
+    time_diff = stop - start
+  ) %>%
+  summarise(
+    total_time_in_study = sum(time_diff),
+    total_recurrence = sum(status == 1),
+    recurrence_rate =
+      case_when(
+        total_time_in_study == 0 ~ 0,
+        TRUE ~ total_recurrence/total_time_in_study) * 100,
+    .groups = "drop"
+  ) 
+
+patient_summary %>% ggplot(aes(x = recurrence_rate, fill = treatment)) + geom_histogram()
+
+treatment_summary <- patient_summary %>%
+  group_by(treatment) %>%
+  summarise(
+    total_obs = n(),
+    total_time_observed = sum(total_time_in_study),
+    total_recurrences = sum(total_recurrence),
+    calculated_recurrence_rate = total_recurrences/total_time_observed,
+    avg_recurrence_rate = mean(recurrence_rate),
+    scaled_recurrence_rate = calculated_recurrence_rate * 100
+  )
+```
+
+## Incidence of Recurrence Across Treatment Groups
+
+We can use a chi-square test to see if there is any association between treatment and incidence of recurrence.
+
+```{r}
+to_chi_sq <- patient_summary %>%
+  group_by(treatment) %>%
+  summarise(
+    any_recurrence = sum(total_recurrence > 0),
+    no_recurrence = sum(total_recurrence == 0)
+  ) 
+
+chisq.test(to_chi_sq[2:3] %>% as.matrix())
+```
+
+There seems to be no association between treatment and overall recurrence. This agrees with the result presented in the original study.
+
+This result is not very informative, as we have effectively ignored both the times at which the recurrences occurred as well as the number of recurrences that occurred.
+
+## Recurrence Rate Comparison Between Treatment Groups
+
+Assuming that time to recurrence follows an exponential distribution, Cox (1953) proposes a pairwise comparison of rates by using the test statistic $F = \frac{T_1/(d_1 + 0.5)}{T_2/(d_2+0.5)}$, where $T_1$ and $T_2$ are, respectively, the total patient time for each treatment group, and $d_1$ and $d_2$ are, respectively, the total number of events for each treatment group, with degrees of freedom $v_1 = (v_1' + v_1^*/2) = 2d_1 + 1$ and $v_2 = (v_2' + v_2^*/2) = 2d_2 + 1$.
+
+```{r}
+rate_comparison <- function(t1, t2, d1, d2){
+  f_stat <- (t1/(d1 + 0.5))/(t2/(d2 + 0.5))
+  p_value <- pf(f_stat, 2*d1 + 1, 2*d2 + 1)
+  return(list(
+    f_stat, p_value
+  ))
+}
+
+# placebo vs. pyro
+rate_comparison(1528, 993, 87, 57)
+
+# placebo vs. thio
+rate_comparison(1528, 1183, 87, 45)
+
+# pyro vs. thio
+rate_comparison(993, 1183, 57, 45)
+```
+
+Since we ran three hypothesis tests, it would be appropriate to adjust for multiple comparisons. We can use Bonferroni's correction to control the overall $\alpha$ at a 0.05 significance level and set the significance level of each individual comparison at $\alpha = 0.05/3 = 0.01667$. We thereby find that the rates of recurrence is only significantly different between the placebo and thio treatment arms. This result is different from that of the original study paper, in which the original investigators report a significant difference between the placebo and thio treatment arms as well as between the pyro and thio treatment arms.
+
+

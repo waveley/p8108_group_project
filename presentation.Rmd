@@ -1,0 +1,71 @@
+---
+title: |
+  | Evaluating and Extending Three-Arm
+  | Study in the Treatment of Superficial
+  | Bladder Cancer
+  |
+  | P8108 Final Project, Fall 2022
+  | 
+author: |
+  | Yunyi Jiang, Xiao Ma, Waveley Qiu, 
+  | Xuehan Yan, Congyang Xie
+  | 
+date: "2022-12-05"
+output:
+  beamer_presentation:
+    colortheme: "dolphin"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Background
+
+## Superficial Bladder Cancer
+
+- Also known as Stage 1 bladder cancer
+- Common diagnosis (75% of bladder cancer cases$^1$) and rarely life-threatening on it own.
+- Thought to arise due to urinary issues$^1$ or through "abnormalities of tryptophan metabolism"$^2$
+- Particular interest in preventing recurrence of disease
+  - Natural history study conducted in Sweden saw that "death was directly related to tumor grade, number of tumors, and volume of recurrences."$^3$
+
+## Pyridoxine and Thiotepa
+- _Pyridoxine_ (vitamin $B_6$) thought to reduce "abnormalities of tryptophan metabolism"
+- _Thiotepa_ has been the standard of care for the treatment of superficial bladder cancers.
+- Effects of these two therapies compared in randomized clinical trial conducted by Byar and Blackard in 1977
+
+## Byar and Blackard (1977)
+- Primary clinical interest: prevent and reduce recurrence of Stage 1 bladder cancer.
+- Event time agnostic analysis conducted included comparing overall rates and percentages of occurrence between groups
+  - Pairwise difference detected in rate of recurrence between thiotepa and placebo, and thiotepa and pyridoxine 
+  - No other differences in event incidence between groups detected
+- Survival analysis conducted involved the construction of life-table estimates.
+  - Life-table analysis indicate that the time to first recurrence was significantly different between pyridoxine and placebo groups.
+  - Analysis restricted to subjects who experienced recurrence after at least 10 months of follow-up
+
+# Proposed Project
+
+## Motivation
+- Research ought to be reproducible, especially if data has become open-source
+- Different models may be more informative than just the actuarial curves constructed
+
+## Analysis Plan
+1. Reproduce analysis conducted in original study to see if results are reproducible
+2. Construct models that differ from original study to see if they can be more informative
+
+
+## References
+
+1. Superficial bladder cancer. Division of Urologic Surgery. (n.d.). Retrieved from https://urology.wustl.edu/urologic-cancers/bladder-cancer/surgery-for-superficial-b/
+
+2. C;, B. D. B. (n.d.). Comparisons of placebo, pyridoxine, and topical thiotepa in preventing recurrence of stage I bladder cancer. Urology. Retrieved from https://pubmed.ncbi.nlm.nih.gov/414402/ 
+
+3. Pasin, E., Josephson, D. Y., Mitra, A. P., Cote, R. J., &amp; Stein, J. P. (2008). Superficial bladder cancer: An update on etiology, molecular development, classification, and natural history. Reviews in urology. Retrieved December 3, 2022, from https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2312342/ 
+
+
+
+
+
+
+
