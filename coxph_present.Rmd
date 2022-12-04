@@ -47,6 +47,13 @@ bladder1.cox.2 %>%
 + exp_est is the hazard ratio. Compared to the placebo, the thiotepa treatment reduce the hazard of 42.4%
 
 ## Fit coxph model
+
+### Survival curve for cox model (adjusted for baseline)
+
+![SurvivalCurve]("IMG_0635.PNG")
+
+## Fit coxph model
+
 ### Test statistics
 
 ```{r echo=FALSE}
