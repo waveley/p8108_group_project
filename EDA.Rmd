@@ -1,0 +1,149 @@
+---
+title: "EDA"
+author: "XIAO MA"
+date: '2022-11-27'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(ggridges)
+library(dplyr)
+library(survival)
+```
+
+```{r}
+theme_set(
+  theme_bw() +
+    theme(
+      legend.position = "bottom",
+      plot.title = element_text(hjust = 0.5),
+      plot.subtitle = element_text(hjust = 0.5),
+      plot.caption = element_text(hjust = 0.0)
+    )
+)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
+```
+
+```{r}
+data(cancer, package = "survival")
+head(bladder1) %>% knitr::kable()
+```
+
+* id:	Patient id
+* treatment:	Placebo, pyridoxine (vitamin B6), or thiotepa
+* recur:	Number of recurrences
+* start,stop:	The start and end time of each time interval
+* status:	End of interval code, 0=censored, 1=recurrence, 2=death from bladder disease, 3=death other/unknown cause
+* rtumor:	Number of tumors found at the time of a recurrence
+* rsize:	Size of largest tumor at a recurrence
+* enum:	Event number (observation number within patient)
+
+```{r}
+bladder = bladder1 %>% group_by(id) %>% 
+  mutate(total_recs = n(),
+         new_enum =-enum + total_recs + 1) %>% 
+  filter(new_enum == 1)
+```
+
+- Summarize data (plots of tumor information, # patients assigned to each treatment, # of each status [censored, died, recurrence], etc.)
+
+** Distribution of patients for Each Treatment and Recurrence 
+```{r}
+bladder %>% select(id,treatment,recur) %>% filter(recur > 0) %>%  group_by(treatment) %>% summarise(n = n()) 
+
+bladder %>% select(id,treatment,recur) %>% filter(recur == 0) %>% unique() %>% group_by(treatment) %>% summarise(n = n())
+
+p3 = data.frame(treatment = c(rep("placebo",2),rep("pyridoxine",2), rep("thiotepa",2)),
+  recurrence = rep(c("Y","N"),3),n = c(29,19,15,17,18,20))
+
+ggplot(data = p3, aes(x = treatment, y = n, fill=factor(recurrence))) + geom_bar(stat="identity",color = "black") + geom_text(aes(label = n),color = "black",hjust = 0.5,vjust = 3,size = 3,position = "stack") + labs(title = "Distribution of patients for Each Treatment and Recurrence ", x = "Treatment", y ="Number of Patients") + guides(fill = guide_legend(title = "Recurrence")) + scale_fill_manual(values = c('light blue','orchid'))
+
+```
+The number of patients in the three treatment groups are shown. The patients were assigned at random with equal probability but numbers in the three treatment groups are not equal. 
+
+
+
+** Distribution of Patient Final Status over Different Treatment
+```{r}
+final_status = bladder %>%  
+  select(id,treatment,recur,status) %>% 
+  group_by(treatment,status) %>% summarise(n = n())
+
+recurr_df2 = data.frame(final_status)
+
+ggplot(data=recurr_df2, aes(x=as.factor(status), y= n,fill=as.factor(status))) + geom_bar(stat="identity", position=position_dodge())+geom_text(aes(label = n),color = "white",hjust=0.2,vjust=1.5,size=3,position = position_dodge(0.9))+facet_grid(. ~ treatment) + labs(title="Distribution of Patient Final Status over Different Treatment", x = "Status", y = "Counts", fill = "Status")
+```
+
+
+*Distribution of Recurrences Patients Final Status of over Treatment
+```{r}
+final_status_R = bladder %>% 
+  filter(recur > 0) %>% 
+  select(id,treatment,recur,status) %>% 
+  group_by(treatment,status) %>% summarise(n = n())
+
+final_status_R = data.frame(final_status_R)
+
+ggplot(data=final_status_R, aes(x=as.factor(status), y= n,fill=as.factor(status))) + geom_bar(stat="identity", position=position_dodge())+geom_text(aes(label = n),color = "white",hjust=0.2,vjust=1.5,size=3,position = position_dodge(0.9))+facet_grid(. ~ treatment) + 
+labs(title="Distrubition of Final Status of Recurrence Patients", x = "status", y = "counts", fill = "status")
+```
+
+
+
+```{r}
+#distribution of number of tumors and the largest initial tumor
+d1 =  bladder %>% select(id,treatment,number,size) %>% group_by(treatment)
+
+ggplot(d1, aes(x = number, y = size, color = treatment)) + 
+  geom_point(alpha = .5,position= "jitter") +
+  xlim(1,8) +
+  ylim(1,8) +
+  facet_grid(. ~ treatment)
+
+```
+
+- Examine whether number of tumors/size of tumors has something to do with number of recurrences
+```{r}
+d4 = bladder %>% filter(recur != 0) %>% 
+     group_by(id,treatment,recur,status,number,size) %>% summarise(n = n())
+d4 = data.frame(d4)
+
+ggplot(d4, aes(x = number, y = size, color = recur)) + 
+  geom_point(alpha = .5, position = "jitter") + 
+  facet_grid(. ~ treatment)
+```
+
+
+- Examine whether number of tumors/size of tumors has something to do with treatment assignment -- randomized, so probably not
+```{r}
+d5 =bladder %>% group_by(treatment,recur,status,number,size) %>% summarise(n = n())
+
+#boxplot,y=number of tumors
+ggplot(d5, aes(x = treatment, y = number)) + geom_boxplot()+ geom_jitter(shape=16, position=position_jitter(0.2))
+```
+
+tumor size/number with final status
+```{r}
+d6 = bladder %>% group_by(id,treatment,status,size,number) %>% summarise(n = n())
+
+ggplot(d6, aes(x = number, y = size, color = factor(status))) + 
+  geom_point(alpha = .5, position = "jitter") + 
+  facet_grid(. ~ treatment)
+```
+
+
+```{r}
+d7=bladder%>%select(treatment,recur,status,number,size)
+pairs(d7)
+```
+

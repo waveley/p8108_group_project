@@ -93,3 +93,38 @@ rate_comparison(993, 1183, 57, 45)
 Since we ran three hypothesis tests, it would be appropriate to adjust for multiple comparisons. We can use Bonferroni's correction to control the overall $\alpha$ at a 0.05 significance level and set the significance level of each individual comparison at $\alpha = 0.05/3 = 0.01667$. We thereby find that the rates of recurrence is only significantly different between the placebo and thio treatment arms. This result is different from that of the original study paper, in which the original investigators report a significant difference between the placebo and thio treatment arms as well as between the pyro and thio treatment arms.
 
 
+```{r}
+bladder %>%
+  mutate(
+    recur_ind = if_else(recur > 0, 1, 0)
+  ) %>%
+  group_by(treatment, recur_ind) %>%
+  select(id, treatment, recur_ind) %>%
+  unique() %>%
+  summarise(
+    count = n()
+  )
+
+bladder %>%
+  mutate(
+    recur_ind = if_else(recur > 0, 1, 0)
+  ) %>% 
+  filter(recur > 0) %>%
+  group_by(treatment, recur_ind) %>%
+  select(id, treatment, recur_ind) %>%
+  unique() %>%
+  summarise(
+    count = n()
+  )
+
+final_status <-
+  bladder %>%
+  group_by(id) %>%
+  mutate(
+    total_recs = n(),
+    new_enum = -enum + total_recs + 1
+  ) %>% 
+  filter(new_enum == 1)
+  
+```
+

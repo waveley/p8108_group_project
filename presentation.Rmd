@@ -1,23 +1,41 @@
 ---
-title: |
-  | Evaluating and Extending Three-Arm
-  | Study in the Treatment of Superficial
-  | Bladder Cancer
-  |
-  | P8108 Final Project, Fall 2022
-  | 
-author: |
-  | Yunyi Jiang, Xiao Ma, Waveley Qiu, 
-  | Xuehan Yan, Congyang Xie
-  | 
-date: "2022-12-05"
+title: "| Evaluating and Extending Three-Arm\n| Study in the Treatment of Superficial\n|
+  Bladder Cancer\n|\n| P8108 Final Project, Fall 2022\n| \n"
+author: "| Yunyi Jiang, Xiao Ma, Waveley Qiu, \n| Xuehan Yan, Congyang Xie\n| \n"
+date: '2022-12-05'
 output:
   beamer_presentation:
-    colortheme: "dolphin"
+    colortheme: dolphin
+  ioslides_presentation: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(survival)
+library(tidyverse)
+library(ggfortify)
+library(ggplot2)
+```
+
+```{r, include=FALSE}
+theme_set(
+  theme_bw() +
+    theme(
+      legend.position = "bottom",
+      plot.title = element_text(hjust = 0.5),
+      plot.subtitle = element_text(hjust = 0.5),
+      plot.caption = element_text(hjust = 0.0)
+    )
+)
+options(
+  ggplot2.continuous.colour = "viridis",
+  ggplot2.continuous.fill = "viridis"
+)
+scale_colour_discrete = scale_colour_viridis_d
+scale_fill_discrete = scale_fill_viridis_d
 ```
 
 # Background
@@ -47,12 +65,133 @@ knitr::opts_chunk$set(echo = TRUE)
 # Proposed Project
 
 ## Motivation
-- Research ought to be reproducible, especially if data has become open-source
-- Different models may be more informative than just the actuarial curves constructed
+- Research ought to be reproducible, especially if data are open-source
+- Different models may be more informative than the actuarial curves constructed
 
 ## Analysis Plan
-1. Reproduce analysis conducted in original study to see if results are reproducible
+1. Reproduce analysis conducted in original study to see if results can be replicated
 2. Construct models that differ from original study to see if they can be more informative
+  - Non-parametric: KM
+  - Semi-parametric: Cox Proportional Hazards Model
+  - Parametric: Weibull and Exponential Models
+  
+## Exploratory Data Analysis
+
+```{r,echo=FALSE, message=FALSE, warning=FALSE,include=FALSE}
+data(cancer, package = "survival")
+head(bladder1) %>% knitr::kable()
+bladder = bladder1 %>% group_by(id) %>% 
+  mutate(total_recs = n(),
+         new_enum =-enum + total_recs + 1) %>% 
+  filter(new_enum == 1)
+
+bladder %>% select(id,treatment,recur) %>% filter(recur > 0) %>%  group_by(treatment) %>% summarise(n = n()) 
+
+bladder %>% select(id,treatment,recur) %>% filter(recur == 0) %>% unique() %>% group_by(treatment) %>% summarise(n = n())
+
+p1 = data.frame(treatment = c(rep("placebo",2),rep("pyridoxine",2), rep("thiotepa",2)),
+  recurrence = rep(c("Y","N"),3),n = c(29,19,15,17,18,20))
+```
+
+```{r}
+ggplot(data = p1, aes(x = treatment, y = n, fill=factor(recurrence))) + geom_bar(stat="identity",color = "black") + geom_text(aes(label = n),color = "black",hjust = 0.5,vjust = 3,size = 3,position = "stack") + labs(title = "Distribution of patients for Each Treatment and Recurrence ", x = "Treatment", y ="Number of Patients") + guides(fill = guide_legend(title = "Recurrence")) + scale_fill_manual(values = c('light blue','orchid'))
+```
+*Number of patients in the three treatment groups are shown. Patients were assigned at random with equal probability but numbers in the three treatment groups are not equal.
+
+## Distribution of Patient Final Status over Different Treatment
+```{r}
+final_status = bladder %>%  
+  select(id,treatment,recur,status) %>% 
+  group_by(treatment,status) %>% summarise(n = n())
+
+p2 = data.frame(final_status)
+
+ggplot(data=p2, aes(x=as.factor(status), y= n,fill=as.factor(status))) + geom_bar(stat="identity", position=position_dodge())+geom_text(aes(label = n),color = "white",hjust=0.2,vjust=1.5,size=3,position = position_dodge(0.9))+facet_grid(. ~ treatment) + labs(title="Distribution of Patient Final Status over Different Treatment", x = "Status", y = "Counts", fill = "Status")+ scale_fill_discrete(labels=c('Censored', 'Recurrence','Death of Bladder', 'Death Other Cause'))
+```
+
+
+## Distribution of Recurrences Patients Final Status of over Treatment
+```{r}
+p3 = bladder %>% 
+  filter(recur > 0) %>% 
+  select(id,treatment,recur,status) %>% 
+  group_by(treatment,status) %>% summarise(n = n())
+
+ggplot(data=p3, aes(x = as.factor(status), y = n,fill = as.factor(status))) + geom_bar(stat = "identity", position = position_dodge()) + geom_text(aes(label = n),color = "white",hjust = 0.2,vjust=1.5,size = 3,position = position_dodge(0.9)) + facet_grid(. ~ treatment) + 
+labs(title = "Distrubition of Final Status of Recurrence Patients", x = "status", y = "counts", fill = "status")+ scale_fill_discrete(labels=c('Censored', 'Recurrence','Death of Bladder', 'Death Other Cause'))
+```
+
+
+## Distribution of Number of tumors and The Largest Initial Tumor SIze
+```{r}
+p4 =  bladder %>% select(id,treatment,number,size) %>% group_by(treatment)
+
+ggplot(p4, aes(x = number, y = size, color = treatment)) + 
+  geom_point(alpha = .5,position = "jitter") +
+  xlim(1,8) +
+  ylim(1,8) +
+  facet_grid(. ~ treatment)
+```
+
+## Examine whether number of tumors/size of tumors has something to do with number of recurrences
+```{r}
+p5 = bladder %>% filter(recur != 0) %>% 
+     group_by(id,treatment,recur,status,number,size) %>% summarise(n = n())
+
+ggplot(p5, aes(x = number, y = size, color = recur)) + 
+  geom_point(alpha = .5, position = "jitter") + 
+  facet_grid(. ~ treatment)
+```
+
+## Initial Tumor Size and Number of Tumor with Final Status
+```{r}
+p6 = bladder %>% group_by(id,treatment,status,size,number) %>% summarise(n = n())
+ggplot(p6, aes(x = number, y = size, color = factor(status))) + 
+  geom_point(alpha = .5, position = "jitter") + 
+  facet_grid(. ~ treatment)
+```
+
+
+## Exploratory Data Analysis
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+data(cancer, package = "survival")
+head(bladder1) %>% knitr::kable()
+```
+
+- `id`:	Patient id
+- `treatment`:	Placebo, pyridoxine (vitamin B6), or thiotepa
+- `recur`:	Number of recurrences
+- `start`, `stop`:	The start and end time of each time interval
+- `status`:	End of interval code, 0=censored, 1=recurrence, 2=death from bladder disease, 3=death from other/unknown cause
+
+# Reproduction Analysis
+
+## 
+
+```{r, echo=FALSE}
+# table 1
+table1 <- tibble(treatment = c("Placebo", "Pyridoxine", "Thiotepa"),
+                 `Evaluable Patients` = c(48,32,38),
+                 `Number without Recurrence` = c(19,17,20),
+                 `Number with Recurrence` = c(29,15,18),
+                 `Total Recurrences` = c(87,57,44),
+                 `Total Months of Follow-up` = c(1528,993,1183)
+                 ) %>% 
+  mutate(`Percent Recurrence` = round(`Number with Recurrence`/`Evaluable Patients`*100,2),
+         `Recurrence Rate` = round(`Total Recurrences`/`Total Months of Follow-up`*100,2))
+
+table1 %>% pivot_longer(cols = -1) %>% pivot_wider(names_from = "treatment", values_from = "value") %>% knitr::kable()
+```
+
+## Exploratory Data Anaysis
+
+```{r, echo=FALSE}
+dat = bladder1 %>% filter(start == 0 & status %in% c(0,1))
+
+bladder_fit <- survfit(Surv(stop, status == 1) ~ treatment, data = dat)
+bladder_fit %>% autoplot() + xlab("Time") + ylab("Survival Function")
+```
 
 
 ## References

@@ -1,0 +1,132 @@
+---
+title: "coxph_present"
+author: "Congyang Xie"
+date: "`r Sys.Date()`"
+output:
+  beamer_presentation:
+    colortheme: "dolphin"
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(survival)
+library(survminer)
+```
+
+```{r include=FALSE}
+data(cancer, package="survival")
+```
+
+
+
+```{r include=FALSE}
+bladder1 <-
+  bladder1 %>%
+  mutate(recurr = if_else(status == 1, 1, 0),
+         time = stop - start) %>%
+  filter(start == 0)
+```
+
+
+## Fit coxph model
+
++ Fit a Cox proportional hazard model with initial tumor number and size as covariates.
+```{r echo=FALSE}
+bladder1.cox.2 <- coxph(Surv(time, recurr) ~ treatment + number + size, data = bladder1)
+# summary(bladder1.cox.2)
+bladder1.cox.2 %>%  
+  broom::tidy() %>% 
+  mutate(exp_est = exp(estimate)) %>% 
+  relocate(term, estimate, exp_est) %>% 
+  knitr::kable(digits = 3, caption = "Coefficients")
+```
+
++ Treatment thiotepa and initial tumor number is statistically significant
++ The thiotepa treatment help decrease the hazard, thus improving the prognosis of bladder cancer
++ The initial tumor number increases the hazard, thus the prognosis worse, for subjects with more tumors at the beginning.
++ exp_est is the hazard ratio. Compared to the placebo, the thiotepa treatment reduce the hazard of 42.4%
+
+## Fit coxph model
+### Test statistics
+
+```{r echo=FALSE}
+stat.val <-
+  bladder1.cox.2 %>%
+  broom::glance() %>%
+  select(starts_with("statistic")) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "test_name",
+    names_prefix = "statistic.",
+    values_to = "statistic_value"
+  ) %>%
+  filter(test_name != "robust")
+
+p.val <-
+  bladder1.cox.2 %>%
+  broom::glance() %>%
+  select(starts_with("p.value")) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to = "test_name",
+    names_prefix = "p.value.",
+    values_to = "p_value"
+  ) %>%
+  filter(test_name != "robust") %>%
+  select(-test_name)
+
+bind_cols(stat.val, p.val) %>% knitr::kable(digits = 3, caption = "Global statistical significance")
+```
++ the output gives p-values for three alternative tests for overall significance of the model: The likelihood-ratio test, score log-rank statistics, and Wald test.
++ These three methods are asymptotically equivalent
+
+## Check assumption
+
+```{r echo=FALSE}
+test.ph.2 <- cox.zph(bladder1.cox.2)
+test.ph.2[["table"]] %>% knitr::kable(digits = 3)
+```
+
++ From the output above, the test is not statistically significant for each of the covariates, and the global test is also not statistically significant. 
++ Therefore, we can assume the proportional hazards.
+
+
+## Check assumption
+
+```{r echo=FALSE, fig.height=4.5, fig.width=8}
+ggcoxzph(test.ph.2)
+```
+
++ Systematic departures from a horizontal line are indicative of non-proportional hazards, since proportional hazards assumes that estimates do not vary much over time.
++ From the graphical inspection, there is no pattern with time.
+
+## check influential observation
+
+```{r echo=FALSE, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+# Testing influential observations
+ggcoxdiagnostics(
+  bladder1.cox.2,
+  type = "dfbeta"
+)
+```
+
++ Plots the estimated changes in the regression coefficients upon deleting each observation in turn
++ The index plots above demonstrate that none of the observations are particularly influential on their own.
+
+## Testing non linearity
+
+```{r echo=FALSE, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+# Testing non linearity
+ggcoxfunctional(Surv(time, recurr) ~  number + log(number) + sqrt(number), data = bladder1)
+```
+
++ The plot display graphs of continuous covariates against residuals of null cox proportional hazards model. 
++ It appears that, there's slight non-linearity for the initial tumor number here.
+
+## Testing non linearity
+
+```{r echo=FALSE, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
+ggcoxfunctional(Surv(time, recurr) ~  size + log(size) + sqrt(size), data = bladder1)
+```
+
++ It appears that, there's non-linearity for the initial tumor size here.
