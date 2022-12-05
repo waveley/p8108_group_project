@@ -52,6 +52,7 @@ ggcoxzph(test.ph.1)
 bladder1.cox.2 <- coxph(Surv(time, recurr) ~ treatment + number + size, data = bladder1)
 summary(bladder1.cox.2)
 ```
+
 ```{r fig.height=21, fig.width=12}
 test.ph.2 <- cox.zph(bladder1.cox.2)
 print(test.ph.2)

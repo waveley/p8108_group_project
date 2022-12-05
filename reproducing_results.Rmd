@@ -16,6 +16,8 @@ bladder <- survival::bladder1
 bladder
 ```
 
+
+
 ## Comparison of Rates of Recurrence
 
 ```{r}
@@ -50,7 +52,7 @@ treatment_summary <- patient_summary %>%
 
 ## Incidence of Recurrence Across Treatment Groups
 
-We can use a chi-square test to see if there is any association between treatment and incidence of recurrence.
+- Chi-square test can be used to see if there is any association between treatment and incidence of recurrence.
 
 ```{r}
 to_chi_sq <- patient_summary %>%

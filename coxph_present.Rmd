@@ -18,7 +18,6 @@ data(cancer, package="survival")
 ```
 
 
-
 ```{r include=FALSE}
 bladder1 <-
   bladder1 %>%
@@ -30,7 +29,8 @@ bladder1 <-
 
 ## Fit coxph model
 
-+ Fit a Cox proportional hazard model with initial tumor number and size as covariates.
+- Fit a Cox proportional hazard model with initial tumor number and size as covariates.
+
 ```{r echo=FALSE}
 bladder1.cox.2 <- coxph(Surv(time, recurr) ~ treatment + number + size, data = bladder1)
 # summary(bladder1.cox.2)
@@ -41,10 +41,8 @@ bladder1.cox.2 %>%
   knitr::kable(digits = 3, caption = "Coefficients")
 ```
 
-+ Treatment thiotepa and initial tumor number is statistically significant
-+ The thiotepa treatment help decrease the hazard, thus improving the prognosis of bladder cancer
-+ The initial tumor number increases the hazard, thus the prognosis worse, for subjects with more tumors at the beginning.
-+ exp_est is the hazard ratio. Compared to the placebo, the thiotepa treatment reduce the hazard of 42.4%
+- Initial tumor number is statistically significant
+- The initial tumor number increases the hazard, indicating that the prognosis worse, for subjects with more tumors at the beginning.
 
 ## Fit coxph model
 
@@ -84,19 +82,19 @@ p.val <-
 
 bind_cols(stat.val, p.val) %>% knitr::kable(digits = 3, caption = "Global statistical significance")
 ```
-+ the output gives p-values for three alternative tests for overall significance of the model: The likelihood-ratio test, score log-rank statistics, and Wald test.
-+ These three methods are asymptotically equivalent
 
-## Check assumption
+- The output gives p-values for three alternative tests for overall significance of the model: The likelihood-ratio test, score log-rank statistics, and Wald test.
+- These three methods are asymptotically equivalent
+
+## Check Assumption
 
 ```{r echo=FALSE}
 test.ph.2 <- cox.zph(bladder1.cox.2)
 test.ph.2[["table"]] %>% knitr::kable(digits = 3)
 ```
 
-+ From the output above, the test is not statistically significant for each of the covariates, and the global test is also not statistically significant. 
-+ Therefore, we can assume the proportional hazards.
-
+- From the output above, the test is not statistically significant for each of the covariates, and the global test is also not statistically significant. 
+- Therefore, we can assume the proportional hazards.
 
 ## Check assumption
 
@@ -104,8 +102,8 @@ test.ph.2[["table"]] %>% knitr::kable(digits = 3)
 ggcoxzph(test.ph.2)
 ```
 
-+ Systematic departures from a horizontal line are indicative of non-proportional hazards, since proportional hazards assumes that estimates do not vary much over time.
-+ From the graphical inspection, there is no pattern with time.
+- Systematic departures from a horizontal line are indicative of non-proportional hazards, since proportional hazards assumes that estimates do not vary much over time.
+- From the graphical inspection, there is no pattern with time.
 
 ## check influential observation
 
@@ -117,8 +115,8 @@ ggcoxdiagnostics(
 )
 ```
 
-+ Plots the estimated changes in the regression coefficients upon deleting each observation in turn
-+ The index plots above demonstrate that none of the observations are particularly influential on their own.
+- Plots the estimated changes in the regression coefficients upon deleting each observation in turn
+- The index plots above demonstrate that none of the observations are particularly influential on their own.
 
 ## Testing non linearity
 
@@ -127,8 +125,8 @@ ggcoxdiagnostics(
 ggcoxfunctional(Surv(time, recurr) ~  number + log(number) + sqrt(number), data = bladder1)
 ```
 
-+ The plot display graphs of continuous covariates against residuals of null cox proportional hazards model. 
-+ It appears that, there's slight non-linearity for the initial tumor number here.
+- The plot display graphs of continuous covariates against residuals of null cox proportional hazards model. 
+- It appears that, there's slight non-linearity for the initial tumor number here.
 
 ## Testing non linearity
 
@@ -136,4 +134,4 @@ ggcoxfunctional(Surv(time, recurr) ~  number + log(number) + sqrt(number), data 
 ggcoxfunctional(Surv(time, recurr) ~  size + log(size) + sqrt(size), data = bladder1)
 ```
 
-+ It appears that, there's non-linearity for the initial tumor size here.
+- It appears that, there's non-linearity for the initial tumor size here.

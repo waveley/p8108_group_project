@@ -138,10 +138,10 @@ ods graphics off;
 ods graphics on;
 title "Check PH assumptions using Schoenfeld Residuals";
 /*Schoenfeld Residuals*/
-proc phreg data=b1;
-    class treatment(ref='0');
-    model time*status(0)=treatment size number;
-    output out=resid ressch=schtreatment schsize schnumber;
+proc phreg data=ttfr;
+    class rx(ref='0');
+    model time*status(0)=rx size number;
+    output out=resid ressch = schsize schnumber;
 run;
 
 ods text="Plot Schoenfeld residual with variable = number";
