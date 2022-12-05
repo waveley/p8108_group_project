@@ -1,0 +1,36 @@
+---
+title: "model portion"
+author: "Waveley Qiu"
+date: "2022-12-03"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Non-Parametric Approach
+
+## Semi-Parametric Approach
+- Cox PH Model
+- Three models constructed: TTFR against treatment and number of tumors, TTFR against size of largest tumor, and TTFR against both number of tumors and size of largest tumor.
+
+## Parametric Approach
+
+
+## Study Design
+
+- 121 patients from ten VA hospitals were enrolled in this study between November, 1971, and August, 1976
+- All patients had superficial bladder tumors when they entered the trial
+- Patients were assigned at random to one of three treatment groups: 
+  - Placebo, 1 tablet per day
+  - Oral pyridoxine, one 25 mg. tablet per day
+  - Thiotepa, 60 mg. in 60 ml. of water instilled in the bladder for two hours once a week for four weeks and then once a month.
+
+## Study Design
+
+- The goal of the study was to determine the effect of treatment on the prevention of tumor recurrence
+
+- The endpoint can be seen as the recurrence of bladder cancer, which is defined by a visit at which one or more tumors have reappeared in the bladder after having been removed previously.
+
+- The average follow-up information available for study was about thirty-one months in all three treatment groups, but some patients have been followed up as long as five years. 
